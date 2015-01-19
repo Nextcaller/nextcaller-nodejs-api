@@ -206,11 +206,22 @@ NextCallerPlatformClient.prototype.updatePlatformUser = function(platformUsernam
     make_request(options, successCallback, errorCallback, jsonData);
 };
 
-NextCallerPlatformClient.prototype.getFraudLevel = NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, errorCallback) {
+NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, errorCallback) {
     var options = {
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/fraud/?format=json&phone=' + phone,
+        method: 'GET',
+        auth: this.username + ':' + this.password
+    };
+    make_request(options, successCallback, errorCallback);
+};
+
+NextCallerPlatformClient.prototype.getFraudLevel = function(phone, platformUsername, successCallback, errorCallback) {
+    var options = {
+        hostname: this.base_url,
+        port: port,
+        path: '/' + this.version + '/fraud/?format=json&phone=' + phone + '&platform_username=' + platformUsername,
         method: 'GET',
         auth: this.username + ':' + this.password
     };

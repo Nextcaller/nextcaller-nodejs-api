@@ -382,9 +382,9 @@ describe("platformClient getFraudLevel with correct phone number", function () {
     it("should return the correct response", function (done) {
         var fraudResponseObjectStr = JSON.stringify(fraudGetLevelResult);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/fraud/?format=json&phone=" + phone)
+            .get("/" + apiVersion + "/fraud/?format=json&phone=" + phone + "&platform_username=" + platformUsername)
             .reply(200, fraudResponseObjectStr);
-        platformClient.getFraudLevel(phone, function (data, statusCode) {
+        platformClient.getFraudLevel(phone, platformUsername, function (data, statusCode) {
             statusCode.should.equal(200);
             data.spoofed.should.equal("false");
             data.fraud_risk.should.equal("low");
