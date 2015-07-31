@@ -8,6 +8,7 @@ var https = require('https'),
     hostname = 'api.nextcaller.com',
     sandboxHostname = 'api.sandbox.nextcaller.com',
     defaultApiVersion = 'v2',
+    defaultPlatformAccountHeader = "Nc-Account-Id",
     port = 443,
     jsonContentType = 'application/json; charset=utf-8';
 
@@ -23,7 +24,6 @@ function serialize(obj) {
         }, []
     ).join('&');
     return '?' + pairs;
-
 }
 
 function make_request(options, successCallback, errorCallback, data) {
@@ -102,12 +102,12 @@ NextCallerClient.prototype.getByPhone = function(phone, successCallback, errorCa
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerClient.prototype.getByAddressName = function(address_data, successCallback, errorCallback) {
-    address_data['format'] = 'json';
+NextCallerClient.prototype.getByAddressName = function(data, successCallback, errorCallback) {
+    data['format'] = 'json';
     var options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/records/' + serialize(address_data),
+        path: '/' + this.version + '/records/' + serialize(data),
         method: 'GET',
         auth: this.username + ':' + this.password
     };
@@ -138,7 +138,7 @@ NextCallerClient.prototype.updateByProfileId = function(profileId, data, success
         port: port,
         path: '/' + this.version + '/users/' + profileId + '/' + serialize(params),
         method: 'POST',
-        auth: this.username + ':' + this.username,
+        auth: this.username + ':' + this.password,
         headers: {
             'Content-Type': jsonContentType,
             'Content-Length': jsonData.length
@@ -179,6 +179,20 @@ NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, erro
 
 /* Platform client */
 
+function validateAccountId(accountId) {
+    if (!/^[a-z0-9_]+$/.test(accountId)) {
+        throw new Error(
+            "Invalid account ID: " + accountId + ". " +
+            "Letters, numbers and underscores at lower case are allowed for account ID."
+        );
+    }
+}
+
+function updateWithPlatformAccountHeader(headers, accountId) {
+    headers[defaultPlatformAccountHeader] = accountId;
+    return headers;
+}
+
 function NextCallerPlatformClient(username, password, sandbox, version) {
     if (!(this instanceof NextCallerPlatformClient)) {
         return new NextCallerPlatformClient(username, password, sandbox, version);
@@ -190,66 +204,68 @@ function NextCallerPlatformClient(username, password, sandbox, version) {
     this.base_url =  this.sandbox ?  sandboxHostname : hostname;
 }
 
-NextCallerPlatformClient.prototype.getByPhone = function(phone, platformUsername, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.getByPhone = function(phone, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var params = {
         'format': 'json',
-        'phone': phone,
-        'platform_username': platformUsername
+        'phone': phone
     },
     options = {
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/records/' + serialize(params),
         method: 'GET',
-        auth: this.username + ':' + this.password
+        auth: this.username + ':' + this.password,
+        headers: updateWithPlatformAccountHeader({}, accountId)
     };
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.getByAddressName = function(address_data, platformUsername, successCallback, errorCallback) {
-    address_data['format'] = 'json';
-    address_data['platform_username'] = platformUsername;
+NextCallerPlatformClient.prototype.getByAddressName = function(data, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
+    data['format'] = 'json';
     var options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/records/' + serialize(address_data),
+        path: '/' + this.version + '/records/' + serialize(data),
         method: 'GET',
-        auth: this.username + ':' + this.password
+        auth: this.username + ':' + this.password,
+        headers: updateWithPlatformAccountHeader({}, accountId)
     };
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.getByProfileId = function(profileId, platformUsername, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.getByProfileId = function(profileId, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var params = {
-        'format': 'json',
-        'platform_username': platformUsername
+        'format': 'json'
     },
     options = {
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/users/' + profileId + '/' + serialize(params),
         method: 'GET',
-        auth: this.username + ':' + this.password
+        auth: this.username + ':' + this.password,
+        headers: updateWithPlatformAccountHeader({}, accountId)
     };
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.updateByProfileId = function(profileId, data, platformUsername, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.updateByProfileId = function(profileId, data, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var jsonData = JSON.stringify(data),
     params = {
-        'format': 'json',
-        'platform_username': platformUsername
+        'format': 'json'
     },
     options = {
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/users/' + profileId + '/' + serialize(params),
         method: 'POST',
-        auth: this.username + ':' + this.username,
-        headers: {
-            'Content-Type': jsonContentType,
-            'Content-Length': jsonData.length
-        }
+        auth: this.username + ':' + this.password,
+        headers: updateWithPlatformAccountHeader(
+            {'Content-Type': jsonContentType, 'Content-Length': jsonData.length}, accountId
+        )
     };
     make_request(options, successCallback, errorCallback, jsonData);
 };
@@ -265,28 +281,30 @@ NextCallerPlatformClient.prototype.getPlatformStatistics = function(page, succes
     options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/platform_users/' + serialize(params),
+        path: '/' + this.version + '/accounts/' + serialize(params),
         method: 'GET',
-        auth: this.username + ':' + this.username
+        auth: this.username + ':' + this.password
     };
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.getPlatformUser = function(platform_username, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.getPlatformAccount = function(accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var params = {
         'format': 'json'
     },
     options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/platform_users/' + platform_username + '/' + serialize(params),
+        path: '/' + this.version + '/accounts/' + accountId + '/' + serialize(params),
         method: 'GET',
-        auth: this.username + ':' + this.username
+        auth: this.username + ':' + this.password
     };
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.updatePlatformUser = function(platformUsername, data, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var jsonData = JSON.stringify(data),
     params = {
         'format': 'json'
@@ -294,9 +312,9 @@ NextCallerPlatformClient.prototype.updatePlatformUser = function(platformUsernam
     options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/platform_users/' + platformUsername + '/' + serialize(params),
+        path: '/' + this.version + '/accounts/' + accountId + '/' + serialize(params),
         method: 'POST',
-        auth: this.username + ':' + this.username,
+        auth: this.username + ':' + this.password,
         headers: {
             'Content-Type': jsonContentType,
             'Content-Length': jsonData.length
@@ -305,18 +323,19 @@ NextCallerPlatformClient.prototype.updatePlatformUser = function(platformUsernam
     make_request(options, successCallback, errorCallback, jsonData);
 };
 
-NextCallerPlatformClient.prototype.getFraudLevel = function(phone, platformUsername, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.getFraudLevel = function(phone, accountId, successCallback, errorCallback) {
+    validateAccountId(accountId);
     var params = {
         'format': 'json',
-        'phone': phone,
-        'platform_username': platformUsername
+        'phone': phone
     },
     options = {
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/fraud/' + serialize(params),
         method: 'GET',
-        auth: this.username + ':' + this.password
+        auth: this.username + ':' + this.password,
+        headers: updateWithPlatformAccountHeader({}, accountId)
     };
     make_request(options, successCallback, errorCallback);
 };
@@ -327,5 +346,8 @@ module.exports = {
     'hostname': hostname,
     'sandboxHostname': sandboxHostname,
     'defaultApiVersion': defaultApiVersion,
-    'serialize': serialize
+    'defaultPlatformAccountHeader': defaultPlatformAccountHeader,
+    'serialize': serialize,
+    'validateAccountId': validateAccountId,
+    'updateWithPlatformAccountHeader': updateWithPlatformAccountHeader
 };
