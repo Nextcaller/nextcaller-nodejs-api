@@ -179,15 +179,6 @@ NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, erro
 
 /* Platform client */
 
-function validateAccountId(accountId) {
-    if (!/^[a-z0-9_]+$/.test(accountId)) {
-        throw new Error(
-            "Invalid account ID: " + accountId + ". " +
-            "Letters, numbers and underscores at lower case are allowed for account ID."
-        );
-    }
-}
-
 function updateWithPlatformAccountHeader(headers, accountId) {
     headers[defaultPlatformAccountHeader] = accountId;
     return headers;
@@ -205,7 +196,6 @@ function NextCallerPlatformClient(username, password, sandbox, version) {
 }
 
 NextCallerPlatformClient.prototype.getByPhone = function(phone, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var params = {
         'format': 'json',
         'phone': phone
@@ -222,7 +212,6 @@ NextCallerPlatformClient.prototype.getByPhone = function(phone, accountId, succe
 };
 
 NextCallerPlatformClient.prototype.getByAddressName = function(data, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     data['format'] = 'json';
     var options = {
         hostname: this.base_url,
@@ -236,7 +225,6 @@ NextCallerPlatformClient.prototype.getByAddressName = function(data, accountId, 
 };
 
 NextCallerPlatformClient.prototype.getByProfileId = function(profileId, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var params = {
         'format': 'json'
     },
@@ -252,7 +240,6 @@ NextCallerPlatformClient.prototype.getByProfileId = function(profileId, accountI
 };
 
 NextCallerPlatformClient.prototype.updateByProfileId = function(profileId, data, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var jsonData = JSON.stringify(data),
     params = {
         'format': 'json'
@@ -289,7 +276,6 @@ NextCallerPlatformClient.prototype.getPlatformStatistics = function(page, succes
 };
 
 NextCallerPlatformClient.prototype.getPlatformAccount = function(accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var params = {
         'format': 'json'
     },
@@ -304,7 +290,6 @@ NextCallerPlatformClient.prototype.getPlatformAccount = function(accountId, succ
 };
 
 NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var jsonData = JSON.stringify(data),
     params = {
         'format': 'json'
@@ -324,7 +309,6 @@ NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accoun
 };
 
 NextCallerPlatformClient.prototype.getFraudLevel = function(phone, accountId, successCallback, errorCallback) {
-    validateAccountId(accountId);
     var params = {
         'format': 'json',
         'phone': phone
@@ -348,6 +332,5 @@ module.exports = {
     'defaultApiVersion': defaultApiVersion,
     'defaultPlatformAccountHeader': defaultPlatformAccountHeader,
     'serialize': serialize,
-    'validateAccountId': validateAccountId,
     'updateWithPlatformAccountHeader': updateWithPlatformAccountHeader
 };
