@@ -10,6 +10,8 @@ var should = require("should"),
     nock = require("nock"),
     phone = 2125558383,
     wrongPhone = 212555838,
+    email = "demo@nextcaller.com",
+    wrongEmail = "demo@nextcaller@com",
     profileId = "97d949a413f4ea8b85e9586e1f2d9a",
     wrongProfileId = profileId + "XXXXXXXXXXX",
     username = "XXXXXXXXXXXXX",
@@ -121,8 +123,13 @@ var should = require("should"),
             "code": "555",
             "type": "Bad Request"
         }
-    },
-    platformStatisticsResponseObject = {
+    }, wrongEmailError = {
+        "error": {
+            "message": "The email address you have entered is invalid.",
+            "code": "560",
+            "type": "Bad Request"
+        }
+    }, platformStatisticsResponseObject = {
         "object_list": [
             {
                 "id": "test",
@@ -279,6 +286,37 @@ describe("getByAddressName with incorrect address data", function () {
         client.getByAddressName(address_data, null, function (data, statusCode) {
             statusCode.should.equal(400);
             data.error.code.should.equal("422");
+            done();
+        });
+    });
+});
+
+
+describe("getByEmail with correct email", function () {
+    it("should return the correct response", function (done) {
+        var emailResponseObjectStr = JSON.stringify(phoneResponseObject);
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/?format=json&email=" + email)
+            .reply(200, emailResponseObjectStr);
+        client.getByEmail(email, function (data, statusCode) {
+            statusCode.should.equal(200);
+            data.records[0].email.should.equal(email);
+            data.records[0].id.should.equal(profileId);
+            done();
+        });
+    });
+});
+
+
+describe("getByEmail with incorrect email", function () {
+    it("should return 400 error", function (done) {
+        var emailErrorObjectStr = JSON.stringify(wrongEmailError);
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/?format=json&email=" + wrongEmail)
+            .reply(400, emailErrorObjectStr);
+        client.getByEmail(wrongEmail, null, function (data, statusCode) {
+            statusCode.should.equal(400);
+            data.error.code.should.equal("560");
             done();
         });
     });
@@ -485,6 +523,37 @@ describe("PlatformClient getByAddressName with incorrect address data", function
         platformClient.getByAddressName(request_data, accountId, null, function (data, statusCode) {
             statusCode.should.equal(400);
             data.error.code.should.equal("422");
+            done();
+        });
+    });
+});
+
+
+describe("PlatformClient getByEmail with correct email", function () {
+    it("should return the correct response", function (done) {
+        var emailResponseObjectStr = JSON.stringify(phoneResponseObject);
+        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
+            .get("/" + apiVersion + "/records/?format=json&email=" + email)
+            .reply(200, emailResponseObjectStr);
+        platformClient.getByEmail(email, accountId, function (data, statusCode) {
+            statusCode.should.equal(200);
+            data.records[0].email.should.equal(email);
+            data.records[0].id.should.equal(profileId);
+            done();
+        });
+    });
+});
+
+
+describe("PlatformClient getByEmail with incorrect email", function () {
+    it("should return 400 error", function (done) {
+        var emailErrorObjectStr = JSON.stringify(wrongEmailError);
+        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
+            .get("/" + apiVersion + "/records/?format=json&email=" + wrongEmail)
+            .reply(400, emailErrorObjectStr);
+        platformClient.getByEmail(wrongEmail, accountId, null, function (data, statusCode) {
+            statusCode.should.equal(400);
+            data.error.code.should.equal("560");
             done();
         });
     });
