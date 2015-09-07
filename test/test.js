@@ -201,7 +201,7 @@ var should = require("should"),
         "spoofed": "false",
         "fraud_risk": "low"
     },
-    wrongAddressResponseObj = {
+    wrongNameAddressResponseObj = {
         "error": {
             "message": "Validation Error",
             "code": "422",
@@ -213,12 +213,12 @@ var should = require("should"),
             }
         }
     },
-    wrongAddressRequestObj = {
+    wrongNameAddressRequestObj = {
         "first_name": "Sharon",
         "last_name": "Ehni",
         "address": "7160 Sw Crestview Pl"
     },
-    correctAddressRequestObj = {
+    correctNameAddressRequestObj = {
         "first_name": "Sharon",
         "last_name": "Ehni",
         "address": "7160 Sw Crestview Pl",
@@ -257,15 +257,15 @@ describe("getByPhone with incorrect phone number", function () {
 });
 
 
-describe("getByAddressName with correct address", function () {
+describe("getByNameAddress with correct name and address data", function () {
     it("should return the correct response", function (done) {
-        var addressResponseObjectStr = JSON.stringify(phoneResponseObject),
-            address_data = correctAddressRequestObj;
-        address_data.format = "json";
+        var nameAddressResponseObjectStr = JSON.stringify(phoneResponseObject),
+            nameAddressData = correctNameAddressRequestObj;
+        nameAddressData.format = "json";
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/" + serialize(address_data)).
-            reply(200, addressResponseObjectStr);
-        client.getByAddressName(address_data, function (data, statusCode) {
+            .get("/" + apiVersion + "/records/" + serialize(nameAddressData)).
+            reply(200, nameAddressResponseObjectStr);
+        client.getByNameAddress(nameAddressData, function (data, statusCode) {
             statusCode.should.equal(200);
             data.records[0].phone[0].number.should.equal(phone.toString());
             data.records[0].id.should.equal(profileId);
@@ -275,15 +275,15 @@ describe("getByAddressName with correct address", function () {
 });
 
 
-describe("getByAddressName with incorrect address data", function () {
+describe("getByNameAddress with incorrect name and address data", function () {
     it("should return 400 error", function (done) {
-        var adddressErrorObjectStr = JSON.stringify(wrongAddressResponseObj),
-            address_data = wrongAddressRequestObj;
-        address_data.format = "json";
+        var nameAddressErrorObjectStr = JSON.stringify(wrongNameAddressResponseObj),
+            nameAddressData = wrongNameAddressRequestObj;
+        nameAddressData.format = "json";
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/" + serialize(address_data))
-            .reply(400, adddressErrorObjectStr);
-        client.getByAddressName(address_data, null, function (data, statusCode) {
+            .get("/" + apiVersion + "/records/" + serialize(nameAddressData))
+            .reply(400, nameAddressErrorObjectStr);
+        client.getByNameAddress(nameAddressData, null, function (data, statusCode) {
             statusCode.should.equal(400);
             data.error.code.should.equal("422");
             done();
@@ -494,15 +494,15 @@ describe("platformClient getFraudLevel with correct phone number", function () {
 });
 
 
-describe("PlatformClient getByAddressName with correct address", function () {
+describe("PlatformClient getByNameAddress with correct name and address data", function () {
     it("should return the correct response", function (done) {
-        var addressResponseObjectStr = JSON.stringify(phoneResponseObject),
-            request_data = correctAddressRequestObj;
-        request_data.format = "json";
+        var nameAddressResponseObjectStr = JSON.stringify(phoneResponseObject),
+            nameAddressData = correctNameAddressRequestObj;
+        nameAddressData.format = "json";
         nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
-            .get("/" + apiVersion + "/records/" + serialize(request_data)).
-            reply(200, addressResponseObjectStr);
-        platformClient.getByAddressName(request_data, accountId, function (data, statusCode) {
+            .get("/" + apiVersion + "/records/" + serialize(nameAddressData)).
+            reply(200, nameAddressResponseObjectStr);
+        platformClient.getByNameAddress(nameAddressData, accountId, function (data, statusCode) {
             statusCode.should.equal(200);
             data.records[0].phone[0].number.should.equal(phone.toString());
             data.records[0].id.should.equal(profileId);
@@ -512,15 +512,15 @@ describe("PlatformClient getByAddressName with correct address", function () {
 });
 
 
-describe("PlatformClient getByAddressName with incorrect address data", function () {
+describe("PlatformClient getByNameAddress with incorrect name address data", function () {
     it("should return 400 error", function (done) {
-        var adddressErrorObjectStr = JSON.stringify(wrongAddressResponseObj),
-            request_data = wrongAddressRequestObj;
-        request_data.format = "json";
+        var nameAddressErrorObjectStr = JSON.stringify(wrongNameAddressResponseObj),
+            nameAddressData = wrongNameAddressRequestObj;
+        nameAddressData.format = "json";
         nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
-            .get("/" + apiVersion + "/records/" + serialize(request_data))
-            .reply(400, adddressErrorObjectStr);
-        platformClient.getByAddressName(request_data, accountId, null, function (data, statusCode) {
+            .get("/" + apiVersion + "/records/" + serialize(nameAddressData))
+            .reply(400, nameAddressErrorObjectStr);
+        platformClient.getByNameAddress(nameAddressData, accountId, null, function (data, statusCode) {
             statusCode.should.equal(400);
             data.error.code.should.equal("422");
             done();

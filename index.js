@@ -102,7 +102,7 @@ NextCallerClient.prototype.getByPhone = function(phone, successCallback, errorCa
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerClient.prototype.getByAddressName = function(data, successCallback, errorCallback) {
+NextCallerClient.prototype.getByNameAddress = function(data, successCallback, errorCallback) {
     data['format'] = 'json';
     var options = {
         hostname: this.base_url,
@@ -226,7 +226,7 @@ NextCallerPlatformClient.prototype.getByPhone = function(phone, accountId, succe
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.getByAddressName = function(data, accountId, successCallback, errorCallback) {
+NextCallerPlatformClient.prototype.getByNameAddress = function(data, accountId, successCallback, errorCallback) {
     data['format'] = 'json';
     var options = {
         hostname: this.base_url,

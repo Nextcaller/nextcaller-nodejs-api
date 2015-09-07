@@ -2,7 +2,7 @@ var username = "XXXXX",
     password = "XXXXX",
     sandbox = false,
     accountId = 'test_user',
-    requestData = {
+    nameAddressData = {
         "first_name": "Sharon",
         "last_name": "Ehni",
         "address": "7160 Sw Crestview Pl",
@@ -12,7 +12,7 @@ var username = "XXXXX",
     module = require("nextcaller-nodejs-api"),
     client = module.NextCallerPlatformClient(username, password, sandbox, version);
 
-client.getByAddressName(requestData, accountId, function (data, status_code) {
+client.getByNameAddress(nameAddressData, accountId, function (data, status_code) {
     console.log(data);
     console.log(status_code);
 }, function (error, status_code) {
