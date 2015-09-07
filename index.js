@@ -320,6 +320,25 @@ NextCallerPlatformClient.prototype.getPlatformAccount = function(accountId, succ
     make_request(options, successCallback, errorCallback);
 };
 
+NextCallerPlatformClient.prototype.createPlatformAccount = function(data, successCallback, errorCallback) {
+    var jsonData = JSON.stringify(data),
+    params = {
+        'format': 'json'
+    },
+    options = {
+        hostname: this.base_url,
+        port: port,
+        path: '/' + this.version + '/accounts/' + serialize(params),
+        method: 'POST',
+        auth: this.username + ':' + this.password,
+        headers: {
+            'Content-Type': jsonContentType,
+            'Content-Length': jsonData.length
+        }
+    };
+    make_request(options, successCallback, errorCallback, jsonData);
+};
+
 NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accountId, successCallback, errorCallback) {
     var jsonData = JSON.stringify(data),
     params = {
@@ -329,7 +348,7 @@ NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accoun
         hostname: this.base_url,
         port: port,
         path: '/' + this.version + '/accounts/' + accountId + '/' + serialize(params),
-        method: 'POST',
+        method: 'PUT',
         auth: this.username + ':' + this.password,
         headers: {
             'Content-Type': jsonContentType,
