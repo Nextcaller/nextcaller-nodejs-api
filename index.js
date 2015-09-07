@@ -114,6 +114,21 @@ NextCallerClient.prototype.getByAddressName = function(data, successCallback, er
     make_request(options, successCallback, errorCallback);
 };
 
+NextCallerClient.prototype.getByEmail = function(email, successCallback, errorCallback) {
+    var params = {
+            'format': 'json',
+            'email': email
+        },
+        options = {
+            hostname: this.base_url,
+            port: port,
+            path: '/' + this.version + '/records/' + serialize(params),
+            method: 'GET',
+            auth: this.username + ':' + this.password
+        };
+    make_request(options, successCallback, errorCallback);
+};
+
 NextCallerClient.prototype.getByProfileId = function(profileId, successCallback, errorCallback) {
     var params = {
         'format': 'json'
@@ -221,6 +236,22 @@ NextCallerPlatformClient.prototype.getByAddressName = function(data, accountId, 
         auth: this.username + ':' + this.password,
         headers: updateWithPlatformAccountHeader({}, accountId)
     };
+    make_request(options, successCallback, errorCallback);
+};
+
+NextCallerPlatformClient.prototype.getByEmail = function(email, accountId, successCallback, errorCallback) {
+    var params = {
+            'format': 'json',
+            'email': email
+        },
+        options = {
+            hostname: this.base_url,
+            port: port,
+            path: '/' + this.version + '/records/' + serialize(params),
+            method: 'GET',
+            auth: this.username + ':' + this.password,
+            headers: updateWithPlatformAccountHeader({}, accountId)
+        };
     make_request(options, successCallback, errorCallback);
 };
 
