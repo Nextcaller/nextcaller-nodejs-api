@@ -175,6 +175,29 @@ var should = require("should"),
         "object": "account",
         "resource_uri": "/v2/accounts/test/"
     },
+    platformCreateAccountJsonRequestExample = {
+        "id": "test",
+        "first_name": "Clark",
+        "last_name": "Kent",
+        "email": "test@test.com"
+    },
+    platformCreateAccountWrongJsonRequestExample = {
+        "first_name": "Clark",
+        "last_name": "Kent",
+        "email": "test@test.com"
+    },
+    platformCreateAccountWrongResult = {
+        "error": {
+            "message": "Validation Error",
+            "code": "422",
+            "type": "Unprocessable Entity",
+            "description": {
+                "id": [
+                    "This field cannot be blank."
+                ]
+            }
+        }
+    },
     platformUpdateAccountJsonRequestExample = {
         "first_name": "Clark",
         "last_name": "Kent",
@@ -441,6 +464,37 @@ describe("platformClient get platform statistics by account", function () {
             statusCode.should.equal(200);
             data.id.should.equal(accountId);
             data.number_of_operations.should.equal(3);
+            done();
+        });
+    });
+});
+
+
+describe("platformClient create platform account", function () {
+    it("should return the correct response", function (done) {
+        var path = "/" + apiVersion + "/accounts/?format=json";
+        nock("https://" + apiHostname)
+            .post(path)
+            .reply(201, "");
+        platformClient.createPlatformAccount(platformCreateAccountJsonRequestExample, function (data, statusCode) {
+            statusCode.should.equal(201);
+            data.should.equal("");
+            done();
+        });
+    });
+});
+
+
+describe("platformClient create platform account with incorrect data", function () {
+    it("should return 400 response", function (done) {
+        var platformCreateAccountWrongResultStr = JSON.stringify(platformCreateAccountWrongResult),
+            path = "/" + apiVersion + "/accounts/?format=json";
+        nock("https://" + apiHostname)
+            .post(path)
+            .reply(400, platformCreateAccountWrongResultStr);
+        platformClient.createPlatformAccount(platformCreateAccountWrongJsonRequestExample, null, function (data, statusCode) {
+            statusCode.should.equal(400);
+            data.error.description.id[0].should.equal("This field cannot be blank.");
             done();
         });
     });
