@@ -20,8 +20,8 @@ var should = require("should"),
     apiVersion = index.defaultApiVersion,
     apiHostname = index.sandboxHostname,
     serialize = index.serialize,
-    client = new (index.NextCallerClient)(username, password, true, apiVersion),
-    platformClient = new (index.NextCallerPlatformClient)(username, password, true, apiVersion),
+    client = new (index.NextCallerClient)(username, password, true),
+    platformClient = new (index.NextCallerPlatformClient)(username, password, true),
     accountId = "test",
     phoneResponseObject = {
         "records": [

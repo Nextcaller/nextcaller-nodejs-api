@@ -1,7 +1,6 @@
 var username = "XXXXX",
     password = "XXXXX",
     sandbox = false,
-    version = 'v2',
     module = require("nextcaller-nodejs-api"),
     data = {
         "id": "test1",
@@ -9,7 +8,7 @@ var username = "XXXXX",
         "last_name": "Kent",
         "email": "test@example.com"
     },
-    client = module.NextCallerPlatformClient(username, password, sandbox, version);
+    client = module.NextCallerPlatformClient(username, password, sandbox);
 
 client.createPlatformAccount(data, function (data, status_code) {
     console.log(data);

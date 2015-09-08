@@ -3,9 +3,8 @@ var username = "XXXXX",
     email = "demo@nextcaller.com",
     sandbox = false,
     accountId = 'test',
-    version = 'v2',
     module = require("nextcaller-nodejs-api"),
-    client = module.NextCallerPlatformClient(username, password, sandbox, version);
+    client = module.NextCallerPlatformClient(username, password, sandbox);
 
 client.getByEmail(email, accountId, function (data, status_code) {
     console.log(data);

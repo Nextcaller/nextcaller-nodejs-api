@@ -7,7 +7,7 @@
 var https = require('https'),
     hostname = 'api.nextcaller.com',
     sandboxHostname = 'api.sandbox.nextcaller.com',
-    defaultApiVersion = 'v2',
+    defaultApiVersion = 'v2.1',
     defaultPlatformAccountHeader = "Nc-Account-Id",
     port = 443,
     jsonContentType = 'application/json; charset=utf-8';
@@ -77,13 +77,13 @@ function make_request(options, successCallback, errorCallback, data) {
     req.end();
 }
 
-function NextCallerClient(username, password, sandbox, version) {
+function NextCallerClient(username, password, sandbox) {
     if (!(this instanceof NextCallerClient)) {
-        return new NextCallerClient(username, password, sandbox, version);
+        return new NextCallerClient(username, password, sandbox);
     }
     this.username = username;
     this.password = password;
-    this.version = version || defaultApiVersion;
+    this.version = defaultApiVersion;
     this.base_url =  !!sandbox ?  sandboxHostname : hostname;
 }
 
@@ -199,14 +199,14 @@ function updateWithPlatformAccountHeader(headers, accountId) {
     return headers;
 }
 
-function NextCallerPlatformClient(username, password, sandbox, version) {
+function NextCallerPlatformClient(username, password, sandbox) {
     if (!(this instanceof NextCallerPlatformClient)) {
-        return new NextCallerPlatformClient(username, password, sandbox, version);
+        return new NextCallerPlatformClient(username, password, sandbox);
     }
     this.username = username;
     this.password = password;
     this.sandbox = !!sandbox;
-    this.version = version || defaultApiVersion;
+    this.version = defaultApiVersion;
     this.base_url =  this.sandbox ?  sandboxHostname : hostname;
 }
 
@@ -381,6 +381,5 @@ module.exports = {
     'sandboxHostname': sandboxHostname,
     'defaultApiVersion': defaultApiVersion,
     'defaultPlatformAccountHeader': defaultPlatformAccountHeader,
-    'serialize': serialize,
-    'updateWithPlatformAccountHeader': updateWithPlatformAccountHeader
+    'serialize': serialize
 };
