@@ -22,7 +22,6 @@ var should = require("should"),
     serialize = index.serialize,
     client = new (index.NextCallerClient)(username, password, true, apiVersion),
     platformClient = new (index.NextCallerPlatformClient)(username, password, true, apiVersion),
-    updateWithAccountHeader = index.updateWithPlatformAccountHeader,
     accountId = "test",
     phoneResponseObject = {
         "records": [
@@ -253,7 +252,7 @@ describe("getByPhone with correct phone number", function () {
     it("should return the correct response", function (done) {
         var phoneResponseObjectStr = JSON.stringify(phoneResponseObject);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/?format=json&phone=" + phone)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", phone: phone}))
             .reply(200, phoneResponseObjectStr);
         client.getByPhone(phone, function (data, statusCode) {
             statusCode.should.equal(200);
@@ -269,7 +268,7 @@ describe("getByPhone with incorrect phone number", function () {
     it("should return 400 error", function (done) {
         var phoneErrorObjectStr = JSON.stringify(wrongPhoneError);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/?format=json&phone=" + wrongPhone)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", phone: wrongPhone}))
             .reply(400, phoneErrorObjectStr);
         client.getByPhone(wrongPhone, null, function (data, statusCode) {
             statusCode.should.equal(400);
@@ -319,7 +318,7 @@ describe("getByEmail with correct email", function () {
     it("should return the correct response", function (done) {
         var emailResponseObjectStr = JSON.stringify(phoneResponseObject);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/?format=json&email=" + email)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", email: email}))
             .reply(200, emailResponseObjectStr);
         client.getByEmail(email, function (data, statusCode) {
             statusCode.should.equal(200);
@@ -335,7 +334,7 @@ describe("getByEmail with incorrect email", function () {
     it("should return 400 error", function (done) {
         var emailErrorObjectStr = JSON.stringify(wrongEmailError);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/records/?format=json&email=" + wrongEmail)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", email: wrongEmail}))
             .reply(400, emailErrorObjectStr);
         client.getByEmail(wrongEmail, null, function (data, statusCode) {
             statusCode.should.equal(400);
@@ -408,7 +407,7 @@ describe("getFraudLevel with correct phone number", function () {
     it("should return the correct response", function (done) {
         var fraudResponseObjectStr = JSON.stringify(fraudGetLevelResult);
         nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/fraud/?format=json&phone=" + phone)
+            .get("/" + apiVersion + "/fraud/" + serialize({format: "json", phone: phone}))
             .reply(200, fraudResponseObjectStr);
         client.getFraudLevel(phone, function (data, statusCode) {
             statusCode.should.equal(200);
@@ -423,13 +422,28 @@ describe("getFraudLevel with correct phone number", function () {
 describe("platformClient getByPhone with correct phone number", function () {
     it("should return the correct response", function (done) {
         var phoneResponseObjectStr = JSON.stringify(phoneResponseObject);
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader(accountId)})
-            .get("/" + apiVersion + "/records/?format=json&phone=" + phone)
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", phone: phone}))
             .reply(200, phoneResponseObjectStr);
         platformClient.getByPhone(phone, accountId, function (data, statusCode) {
             statusCode.should.equal(200);
             data.records[0].phone[0].number.should.equal(phone.toString());
             data.records[0].id.should.equal(profileId);
+            done();
+        });
+    });
+});
+
+
+describe("platformClient getByPhone with incorrect phone number", function () {
+    it("should return 400 error", function (done) {
+        var phoneErrorObjectStr = JSON.stringify(wrongPhoneError);
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", phone: wrongPhone}))
+            .reply(400, phoneErrorObjectStr);
+        platformClient.getByPhone(wrongPhone, accountId, null, function (data, statusCode) {
+            statusCode.should.equal(400);
+            data.error.code.should.equal("555");
             done();
         });
     });
@@ -505,7 +519,7 @@ describe("platformClient update platform account", function () {
     it("should return the correct response", function (done) {
         var path = "/" + apiVersion + "/accounts/" + accountId + "/?format=json";
         nock("https://" + apiHostname)
-            .post(path)
+            .put(path)
             .reply(204, "");
         platformClient.updatePlatformAccount(platformUpdateAccountJsonRequestExample, accountId, function (data, statusCode) {
             statusCode.should.equal(204);
@@ -521,7 +535,7 @@ describe("platformClient update platform account with incorrect data", function 
         var platformUpdateAccountWrongResultStr = JSON.stringify(platformUpdateAccountWrongResult),
             path = "/" + apiVersion + "/accounts/" + accountId + "/?format=json";
         nock("https://" + apiHostname)
-            .post(path)
+            .put(path)
             .reply(400, platformUpdateAccountWrongResultStr);
         platformClient.updatePlatformAccount(platformUpdateAccountWrongJsonRequestExample, accountId, null, function (data, statusCode) {
             statusCode.should.equal(400);
@@ -535,8 +549,8 @@ describe("platformClient update platform account with incorrect data", function 
 describe("platformClient getFraudLevel with correct phone number", function () {
     it("should return the correct response", function (done) {
         var fraudResponseObjectStr = JSON.stringify(fraudGetLevelResult);
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
-            .get("/" + apiVersion + "/fraud/?format=json&phone=" + phone)
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/fraud/" + serialize({format: "json", phone: phone}))
             .reply(200, fraudResponseObjectStr);
         platformClient.getFraudLevel(phone, accountId, function (data, statusCode) {
             statusCode.should.equal(200);
@@ -553,7 +567,7 @@ describe("PlatformClient getByNameAddress with correct name and address data", f
         var nameAddressResponseObjectStr = JSON.stringify(phoneResponseObject),
             nameAddressData = correctNameAddressRequestObj;
         nameAddressData.format = "json";
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
+        nock("https://" + apiHostname)
             .get("/" + apiVersion + "/records/" + serialize(nameAddressData)).
             reply(200, nameAddressResponseObjectStr);
         platformClient.getByNameAddress(nameAddressData, accountId, function (data, statusCode) {
@@ -571,7 +585,7 @@ describe("PlatformClient getByNameAddress with incorrect name address data", fun
         var nameAddressErrorObjectStr = JSON.stringify(wrongNameAddressResponseObj),
             nameAddressData = wrongNameAddressRequestObj;
         nameAddressData.format = "json";
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
+        nock("https://" + apiHostname)
             .get("/" + apiVersion + "/records/" + serialize(nameAddressData))
             .reply(400, nameAddressErrorObjectStr);
         platformClient.getByNameAddress(nameAddressData, accountId, null, function (data, statusCode) {
@@ -586,8 +600,8 @@ describe("PlatformClient getByNameAddress with incorrect name address data", fun
 describe("PlatformClient getByEmail with correct email", function () {
     it("should return the correct response", function (done) {
         var emailResponseObjectStr = JSON.stringify(phoneResponseObject);
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
-            .get("/" + apiVersion + "/records/?format=json&email=" + email)
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", email: email}))
             .reply(200, emailResponseObjectStr);
         platformClient.getByEmail(email, accountId, function (data, statusCode) {
             statusCode.should.equal(200);
@@ -602,8 +616,8 @@ describe("PlatformClient getByEmail with correct email", function () {
 describe("PlatformClient getByEmail with incorrect email", function () {
     it("should return 400 error", function (done) {
         var emailErrorObjectStr = JSON.stringify(wrongEmailError);
-        nock("https://" + apiHostname, {reqheaders: updateWithAccountHeader({}, accountId)})
-            .get("/" + apiVersion + "/records/?format=json&email=" + wrongEmail)
+        nock("https://" + apiHostname)
+            .get("/" + apiVersion + "/records/" + serialize({format: "json", email: wrongEmail}))
             .reply(400, emailErrorObjectStr);
         platformClient.getByEmail(wrongEmail, accountId, null, function (data, statusCode) {
             statusCode.should.equal(400);
