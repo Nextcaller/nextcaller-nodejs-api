@@ -177,21 +177,6 @@ NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, erro
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, errorCallback) {
-    var params = {
-        'format': 'json',
-        'phone': phone
-    },
-    options = {
-        hostname: this.base_url,
-        port: port,
-        path: '/' + this.version + '/fraud/' + serialize(params),
-        method: 'GET',
-        auth: this.username + ':' + this.password
-    };
-    make_request(options, successCallback, errorCallback);
-};
-
 /* Platform client */
 
 function updateWithPlatformAccountHeader(headers, accountId) {
