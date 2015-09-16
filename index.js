@@ -102,12 +102,12 @@ NextCallerClient.prototype.getByPhone = function(phone, successCallback, errorCa
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerClient.prototype.getByNameAddress = function(data, successCallback, errorCallback) {
-    data['format'] = 'json';
+NextCallerClient.prototype.getByNameAddress = function(nameAddressData, successCallback, errorCallback) {
+    nameAddressData['format'] = 'json';
     var options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/records/' + serialize(data),
+        path: '/' + this.version + '/records/' + serialize(nameAddressData),
         method: 'GET',
         auth: this.username + ':' + this.password
     };
@@ -143,8 +143,8 @@ NextCallerClient.prototype.getByProfileId = function(profileId, successCallback,
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerClient.prototype.updateByProfileId = function(profileId, data, successCallback, errorCallback) {
-    var jsonData = JSON.stringify(data),
+NextCallerClient.prototype.updateByProfileId = function(profileId, profileData, successCallback, errorCallback) {
+    var jsonData = JSON.stringify(profileData),
     params = {
         'format': 'json'
     },
@@ -211,12 +211,12 @@ NextCallerPlatformClient.prototype.getByPhone = function(phone, accountId, succe
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.getByNameAddress = function(data, accountId, successCallback, errorCallback) {
-    data['format'] = 'json';
+NextCallerPlatformClient.prototype.getByNameAddress = function(nameAddressData, accountId, successCallback, errorCallback) {
+    nameAddressData['format'] = 'json';
     var options = {
         hostname: this.base_url,
         port: port,
-        path: '/' + this.version + '/records/' + serialize(data),
+        path: '/' + this.version + '/records/' + serialize(nameAddressData),
         method: 'GET',
         auth: this.username + ':' + this.password,
         headers: updateWithPlatformAccountHeader({}, accountId)
@@ -255,8 +255,8 @@ NextCallerPlatformClient.prototype.getByProfileId = function(profileId, accountI
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.updateByProfileId = function(profileId, data, accountId, successCallback, errorCallback) {
-    var jsonData = JSON.stringify(data),
+NextCallerPlatformClient.prototype.updateByProfileId = function(profileId, profileData, accountId, successCallback, errorCallback) {
+    var jsonData = JSON.stringify(profileData),
     params = {
         'format': 'json'
     },
@@ -305,8 +305,8 @@ NextCallerPlatformClient.prototype.getPlatformAccount = function(accountId, succ
     make_request(options, successCallback, errorCallback);
 };
 
-NextCallerPlatformClient.prototype.createPlatformAccount = function(data, successCallback, errorCallback) {
-    var jsonData = JSON.stringify(data),
+NextCallerPlatformClient.prototype.createPlatformAccount = function(accountData, successCallback, errorCallback) {
+    var jsonData = JSON.stringify(accountData),
     params = {
         'format': 'json'
     },
@@ -324,8 +324,8 @@ NextCallerPlatformClient.prototype.createPlatformAccount = function(data, succes
     make_request(options, successCallback, errorCallback, jsonData);
 };
 
-NextCallerPlatformClient.prototype.updatePlatformAccount = function(data, accountId, successCallback, errorCallback) {
-    var jsonData = JSON.stringify(data),
+NextCallerPlatformClient.prototype.updatePlatformAccount = function(accountData, accountId, successCallback, errorCallback) {
+    var jsonData = JSON.stringify(accountData),
     params = {
         'format': 'json'
     },
