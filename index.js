@@ -162,21 +162,6 @@ NextCallerClient.prototype.updateByProfileId = function(profileId, profileData, 
     make_request(options, successCallback, errorCallback, jsonData);
 };
 
-NextCallerClient.prototype.getFraudLevel = function(phone, successCallback, errorCallback) {
-    var params = {
-        'format': 'json',
-        'phone': phone
-    },
-    options = {
-        hostname: this.base_url,
-        port: port,
-        path: '/' + this.version + '/fraud/' + serialize(params),
-        method: 'GET',
-        auth: this.username + ':' + this.password
-    };
-    make_request(options, successCallback, errorCallback);
-};
-
 /* Platform client */
 
 function updateWithPlatformAccountHeader(headers, accountId) {
@@ -341,22 +326,6 @@ NextCallerPlatformClient.prototype.updatePlatformAccount = function(accountData,
         }
     };
     make_request(options, successCallback, errorCallback, jsonData);
-};
-
-NextCallerPlatformClient.prototype.getFraudLevel = function(phone, accountId, successCallback, errorCallback) {
-    var params = {
-        'format': 'json',
-        'phone': phone
-    },
-    options = {
-        hostname: this.base_url,
-        port: port,
-        path: '/' + this.version + '/fraud/' + serialize(params),
-        method: 'GET',
-        auth: this.username + ':' + this.password,
-        headers: updateWithPlatformAccountHeader({}, accountId)
-    };
-    make_request(options, successCallback, errorCallback);
 };
 
 module.exports = {

@@ -31,8 +31,6 @@ var should = require("should"),
                 "last_name": "Seinfeld",
                 "name": "Jerry Seinfeld",
                 "language": "English",
-                "fraud_threat": "low",
-                "spoof": "false",
                 "phone": [
                     {
                         "number": "2125558383"
@@ -72,8 +70,6 @@ var should = require("should"),
         "last_name": "Seinfeld",
         "name": "Jerry Seinfeld",
         "language": "English",
-        "fraud_threat": "low",
-        "spoof": "false",
         "phone": [
             {
                 "number": "2125558383"
@@ -218,10 +214,6 @@ var should = require("should"),
                 ]
             }
         }
-    },
-    fraudGetLevelResult = {
-        "spoofed": "false",
-        "fraud_risk": "low"
     },
     wrongNameAddressResponseObj = {
         "error": {
@@ -403,22 +395,6 @@ describe("updateProfile with incorrect profile id", function () {
 });
 
 
-describe("getFraudLevel with correct phone number", function () {
-    it("should return the correct response", function (done) {
-        var fraudResponseObjectStr = JSON.stringify(fraudGetLevelResult);
-        nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/fraud/" + serialize({format: "json", phone: phone}))
-            .reply(200, fraudResponseObjectStr);
-        client.getFraudLevel(phone, function (data, statusCode) {
-            statusCode.should.equal(200);
-            data.spoofed.should.equal("false");
-            data.fraud_risk.should.equal("low");
-            done();
-        });
-    });
-});
-
-
 describe("platformClient getByPhone with correct phone number", function () {
     it("should return the correct response", function (done) {
         var phoneResponseObjectStr = JSON.stringify(phoneResponseObject);
@@ -540,22 +516,6 @@ describe("platformClient update platform account with incorrect data", function 
         platformClient.updatePlatformAccount(platformUpdateAccountWrongJsonRequestExample, accountId, null, function (data, statusCode) {
             statusCode.should.equal(400);
             data.error.description.email[0].should.equal("Enter a valid email address.");
-            done();
-        });
-    });
-});
-
-
-describe("platformClient getFraudLevel with correct phone number", function () {
-    it("should return the correct response", function (done) {
-        var fraudResponseObjectStr = JSON.stringify(fraudGetLevelResult);
-        nock("https://" + apiHostname)
-            .get("/" + apiVersion + "/fraud/" + serialize({format: "json", phone: phone}))
-            .reply(200, fraudResponseObjectStr);
-        platformClient.getFraudLevel(phone, accountId, function (data, statusCode) {
-            statusCode.should.equal(200);
-            data.spoofed.should.equal("false");
-            data.fraud_risk.should.equal("low");
             done();
         });
     });
